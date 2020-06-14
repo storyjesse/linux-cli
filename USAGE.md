@@ -500,5 +500,11 @@ Systemd is the current init system of most major Linux distributions. This guide
 5. Enable the service so it starts on boot
 
    `sudo systemctl enable protonvpn-autoconnect`
+   
+6. Initializes ProtonVPN in root's home directory.
+
+   Since protonvpn will be run as root by systemd it will look for the configuration files in /root/. Create them there by running `protonvpn init` from the root user's environment.
+   
+   `sudo sudo protonvpn init`
 
 Now ProtonVPN-CLI should connect automatically when you boot up your system.

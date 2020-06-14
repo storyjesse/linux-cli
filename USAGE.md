@@ -502,3 +502,41 @@ Systemd is the current init system of most major Linux distributions. This guide
    `sudo systemctl enable protonvpn-autoconnect`
 
 Now ProtonVPN-CLI should connect automatically when you boot up your system.
+
+#### Additional if you have an encrypted home drive
+
+If you have an encrypted home drive there is an additional step to take because the network is often setup before your encrypted home drive is connected to the system. ProtonVPN-CLI will then fail to start complaining that it hasn't been initialised. Once your system has started and you have logged-in the Systemd Service will work flawlessly.
+
+The easiest way to enable ProtonVPN-CLI at boot in this instance is to initialise and run ProtonVPN-CLI as the root users.
+
+6. Initialize ProtonVPN in root's home directory.
+
+   Since protonvpn will be run as root by systemd it will look for the configuration files in /root/. Create them there by running `protonvpn init` from the root user's environment.
+
+   `sudo sudo protonvpn init`
+   
+7. Update the unit file in `/etc/systemd/system` to run as the root user
+
+   `sudo nano /etc/systemd/system/protonvpn-autoconnect.service`
+   
+8. Change `Environment=SUDO_USER=user` to `Environment=SUDO_USER=root`
+
+   ```
+   [Unit]
+   Description=ProtonVPN-CLI auto-connect
+   Wants=network-online.target
+   
+   [Service]
+   Type=forking
+   ExecStart=/usr/local/bin/protonvpn connect -f
+   Environment=PVPN_WAIT=300
+   Environment=PVPN_DEBUG=1
+   Environment=SUDO_USER=root
+   
+   [Install]
+   WantedBy=multi-user.target
+   ```
+
+   *nb. On my system I also needed to increase the PVPN_WAIT=600 to ensure sufficient time for the connections to be made.*
+
+   

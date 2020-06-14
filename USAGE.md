@@ -37,6 +37,7 @@ This document provides an extensive guide on how to install and use ProtonVPN-CL
     - [Configure alias for quicker access](#configure-alias-for-quicker-access)
     - [Auto-connect on boot](#auto-connect-on-boot)
       - [via Systemd Service](#via-systemd-service)
+      - [Additional step if you have an encrypted home drive](#additional-step-if-you-have-an-encrypted-home-drive)
 
 ## Installation & Updating
 
@@ -503,7 +504,7 @@ Systemd is the current init system of most major Linux distributions. This guide
 
 Now ProtonVPN-CLI should connect automatically when you boot up your system.
 
-#### Additional if you have an encrypted home drive
+#### Additional step if you have an encrypted home drive
 
 If you have an encrypted home drive there is an additional step to take because the network is often setup before your encrypted home drive is connected to the system. ProtonVPN-CLI will then fail to start complaining that it hasn't been initialised. Once your system has started and you have logged-in the Systemd Service will work flawlessly.
 
@@ -511,9 +512,9 @@ The easiest way to enable ProtonVPN-CLI at boot in this instance is to initialis
 
 6. Initialize ProtonVPN in root's home directory.
 
-   Since protonvpn will be run as root by systemd it will look for the configuration files in /root/. Create them there by running `protonvpn init` from the root user's environment.
+   Since protonvpn will be run as root by systemd it will look for the configuration files in `/root/`. Create them there by running `protonvpn init` from the root user's environment. *(note the double sudo)*
 
-   `sudo sudo protonvpn init`
+   `sudo sudo protonvpn init` 
    
 7. Update the unit file in `/etc/systemd/system` to run as the root user
 
@@ -539,4 +540,17 @@ The easiest way to enable ProtonVPN-CLI at boot in this instance is to initialis
 
    *nb. On my system I also needed to increase the PVPN_WAIT=600 to ensure sufficient time for the connections to be made.*
 
-   
+9. Reload the systemd configuration
+
+   `sudo systemctl daemon-reload`.
+
+#### Troubleshooting systemd
+
+If you restart and find that running `protonvpn status` returns `Status:	  Disconnected`  you can check the individual log for the `protonvpn-autoconnect.service` services by typing
+
+`journalctl -u protonvpn-autoconnect.service`
+
+adding a `-d` to the end of this command will show you only the logs since last boot
+
+`journalctl -u protonvpn-autoconnect.service -b`
+
